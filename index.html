@@ -3,84 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dompet Digital</title>
-    <!-- Link untuk PWA (Aplikasi Offline) -->
+    <title>Dompet Digital Saya</title>
     <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#6366f1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; text-align: center; }
-        .card { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input, select, button { padding: 10px; margin: 5px 0; width: 90%; border-radius: 5px; border: 1px solid #ccc; }
-        button { background: #4f46e5; color: white; border: none; cursor: pointer; }
-        ul { list-style: none; padding: 0; }
-        li { background: white; padding: 10px; margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between; }
-        .plus { color: green; } .minus { color: red; }
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            padding-bottom: 40px;
+        }
+
+        .header { text-align: center; color: white; margin-bottom: 25px; margin-top: 10px; }
+        .header h1 { font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
+        .header p { font-size: 14px; opacity: 0.9; margin-top: 5px; }
+
+        .balance-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+        }
+        .balance-card h4 { color: var(--text-light); font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-card .total-balance { font-size: 36px; font-weight: 700; color: var(--primary-dark); margin: 10px 0; letter-spacing: -1px; }
+
+        .summary-row { display: flex; gap: 15px; margin-bottom: 25px; }
+        .summary-card { flex: 1; background: var(--card-bg); padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .summary-card h4 { font-size: 12px; color: var(--text-light); margin-bottom: 8px; }
+        .summary-card p { font-size: 16px; font-weight: 700; }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+
+        .form-card { background: var(--card-bg); border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); margin-bottom: 25px; }
+        .form-card h3 { font-size: 16px; margin-bottom: 15px; color: var(--text-dark); }
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 12px; color: var(--text-light); margin-bottom: 5px; font-weight: 600; }
+        .input-group input, .input-group select {
+            width: 100%; padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; transition: all 0.3s; background: #f9fafb;
+        }
+        .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--primary); background: white; }
+        
+        .btn-add {
+            width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.2s, background 0.3s; margin-top: 5px;
+        }
+        .btn-add:active { transform: scale(0.98); }
+        .btn-add:hover { background: var(--primary-dark); }
+
+        .history-section h3 { color: white; font-size: 16px; margin-bottom: 15px; padding-left: 5px; }
+        .transaction-list { list-style: none; }
+        .transaction-item {
+            background: var(--card-bg); padding: 15px; border-radius: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid transparent; animation: slideIn 0.3s ease-out;
+        }
+        .transaction-item.income { border-left-color: var(--success); }
+        .transaction-item.expense { border-left-color: var(--danger); }
+
+        .item-info { display: flex; flex-direction: column; }
+        .item-title { font-weight: 600; font-size: 14px; color: var(--text-dark); }
+        .item-amount { font-weight: 700; font-size: 15px; margin-top: 3px; }
+        .item-amount.income { color: var(--success); }
+        .item-amount.expense { color: var(--danger); }
+
+        .btn-delete { background: #fee2e2; color: var(--danger); border: none; width: 32px; height: 32px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-delete:hover { background: #fecaca; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .empty-state { text-align: center; color: rgba(255,255,255,0.8); padding: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
-    <h2> Dompet Digital Saya</h2>
-    <div class="card"><h4>Saldo: <span id="balance">Rp 0</span></h4></div>
-    
-    <div class="card">
-        <input type="text" id="text" placeholder="Keterangan (Cth: Gaji)">
-        <input type="number" id="amount" placeholder="Jumlah (Cth: 50000)">
-        <select id="type"><option value="income">Pemasukan (+)</option><option value="expense">Pengeluaran (-)</option></select>
-        <button onclick="addTransaction()">Tambah</button>
+
+    <div class="app-container">
+        <div class="header">
+            <h1>Dompet Digital</h1>
+            <p>Kelola keuanganmu dengan mudah</p>
+        </div>
+
+        <div class="balance-card">
+            <h4>Total Saldo</h4>
+            <div class="total-balance" id="balance">Rp 0</div>
+        </div>
+
+        <div class="summary-row">
+            <div class="summary-card">
+                <h4>Pemasukan</h4>
+                <p id="money-plus" class="text-success">Rp 0</p>
+            </div>
+            <div class="summary-card">
+                <h4>Pengeluaran</h4>
+                <p id="money-minus" class="text-danger">Rp 0</p>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h3>Tambah Transaksi</h3>
+            <div class="input-group">
+                <label>Keterangan</label>
+                <input type="text" id="text" placeholder="Cth: Gaji Bulanan, Beli Makan">
+            </div>
+            <div class="input-group">
+                <label>Jumlah (Rp)</label>
+                <!-- PERUBAHAN DI SINI: type="text" dan inputmode="numeric" -->
+                <input type="text" id="amount" placeholder="0" inputmode="numeric">
+            </div>
+            <div class="input-group">
+                <label>Tipe</label>
+                <select id="type">
+                    <option value="income">Pemasukan (+)</option>
+                    <option value="expense">Pengeluaran (-)</option>
+                </select>
+            </div>
+            <button class="btn-add" onclick="addTransaction()">Simpan Transaksi</button>
+        </div>
+
+        <div class="history-section">
+            <h3>Riwayat Transaksi</h3>
+            <ul id="list" class="transaction-list"></ul>
+            <div id="empty-state" class="empty-state">Belum ada transaksi. Yuk catat yang pertama!</div>
+        </div>
     </div>
 
-    <h3>Riwayat</h3>
-    <ul id="list"></ul>
-
     <script>
-        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         const balanceEl = document.getElementById('balance');
-        const listEl = document.getElementById('list');
+        const money_plus = document.getElementById('money-plus');
+        const money_minus = document.getElementById('money-minus');
+        const list = document.getElementById('list');
+        const emptyState = document.getElementById('empty-state');
+        const amountInput = document.getElementById('amount');
 
-        function formatRupiah(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+
+        // Fungsi Format Rupiah (untuk tampilan saldo & list)
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0
+            }).format(angka);
+        }
+
+        // FUNGSI BARU: Otomatis kasih titik saat mengetik
+        amountInput.addEventListener('input', function(e) {
+            // Hapus semua karakter kecuali angka
+            let value = e.target.value.replace(/\D/g, '');
+            // Format dengan titik
+            if (value !== '') {
+                value = new Intl.NumberFormat('id-ID').format(value);
+            }
+            e.target.value = value;
+        });
 
         function addTransaction() {
-            const text = document.getElementById('text').value;
-            const amount = parseFloat(document.getElementById('amount').value);
+            const text = document.getElementById('text').value.trim();
+            
+            // Hapus titik dari input sebelum diubah jadi angka
+            const rawAmount = amountInput.value.replace(/\./g, '');
+            const amount = parseFloat(rawAmount);
+            
             const type = document.getElementById('type').value;
-            
-            if(text === '' || isNaN(amount)) { alert('Isi data dengan benar!'); return; }
-            
+
+            if (text === '' || isNaN(amount) || amount <= 0) {
+                alert('Mohon isi keterangan dan jumlah uang dengan benar!');
+                return;
+            }
+
             const finalAmount = type === 'expense' ? -amount : amount;
-            transactions.push({ id: Date.now(), text, amount: finalAmount });
-            
+
+            const transaction = {
+                id: Date.now(),
+                text: text,
+                amount: finalAmount
+            };
+
+            transactions.push(transaction);
             updateLocalStorage();
             init();
+
+            // Reset form
             document.getElementById('text').value = '';
-            document.getElementById('amount').value = '';
+            amountInput.value = '';
         }
 
         function removeTransaction(id) {
-            transactions = transactions.filter(t => t.id !== id);
-            updateLocalStorage();
-            init();
+            if(confirm('Hapus transaksi ini?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                updateLocalStorage();
+                init();
+            }
         }
 
         function updateValues() {
             const amounts = transactions.map(t => t.amount);
             const total = amounts.reduce((acc, item) => acc + item, 0);
+            const income = amounts.filter(item => item > 0).reduce((acc, item) => acc + item, 0);
+            const expense = (amounts.filter(item => item < 0).reduce((acc, item) => acc + item, 0) * -1);
+
             balanceEl.innerText = formatRupiah(total);
+            money_plus.innerText = formatRupiah(income);
+            money_minus.innerText = formatRupiah(expense);
         }
 
         function init() {
-            listEl.innerHTML = '';
-            transactions.forEach(t => {
-                const li = document.createElement('li');
-                li.className = t.amount < 0 ? 'minus' : 'plus';
-                li.innerHTML = `${t.text} <span>${formatRupiah(Math.abs(t.amount))}</span> <button onclick="removeTransaction(${t.id})" style="width:auto; background:red; padding:5px;">X</button>`;
-                listEl.appendChild(li);
-            });
+            list.innerHTML = '';
+            if (transactions.length === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+                [...transactions].reverse().forEach(t => {
+                    const li = document.createElement('li');
+                    li.className = `transaction-item ${t.amount < 0 ? 'expense' : 'income'}`;
+                    const sign = t.amount < 0 ? '-' : '+';
+                    li.innerHTML = `
+                        <div class="item-info">
+                            <span class="item-title">${t.text}</span>
+                            <span class="item-amount ${t.amount < 0 ? 'expense' : 'income'}">${sign} ${formatRupiah(Math.abs(t.amount))}</span>
+                        </div>
+                        <button class="btn-delete" onclick="removeTransaction(${t.id})">✕</button>
+                    `;
+                    list.appendChild(li);
+                });
+            }
             updateValues();
         }
 
-        function updateLocalStorage() { localStorage.setItem('transactions', JSON.stringify(transactions)); }
+        function updateLocalStorage() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
         init();
 
-        // Mendaftarkan Service Worker untuk Offline
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./service-worker.js');
         }
