@@ -37,24 +37,12 @@
             color: var(--text-dark);
         }
 
-        .app-container {
-            width: 100%;
-            max-width: 480px;
-            padding-bottom: 40px;
-        }
-
+        .app-container { width: 100%; max-width: 480px; padding-bottom: 40px; }
         .header { text-align: center; color: white; margin-bottom: 25px; margin-top: 10px; }
         .header h1 { font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
         .header p { font-size: 14px; opacity: 0.9; margin-top: 5px; }
 
-        .balance-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            margin-bottom: 20px;
-        }
+        .balance-card { background: var(--card-bg); border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 20px; }
         .balance-card h4 { color: var(--text-light); font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
         .balance-card .total-balance { font-size: 36px; font-weight: 700; color: var(--primary-dark); margin: 10px 0; letter-spacing: -1px; }
 
@@ -67,13 +55,44 @@
 
         .form-card { background: var(--card-bg); border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); margin-bottom: 25px; }
         .form-card h3 { font-size: 16px; margin-bottom: 15px; color: var(--text-dark); }
-        .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 12px; color: var(--text-light); margin-bottom: 5px; font-weight: 600; }
-        .input-group input, .input-group select {
-            width: 100%; padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; transition: all 0.3s; background: #f9fafb;
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; color: var(--text-light); margin-bottom: 8px; font-weight: 600; }
+        .input-group input {
+            width: 100%; padding: 14px 15px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; transition: all 0.3s; background: #f9fafb;
         }
-        .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--primary); background: white; }
+        .input-group input:focus { outline: none; border-color: var(--primary); background: white; }
         
+        /* DESAIN BARU UNTUK TOMBOL TIPE (TOGGLE) */
+        .type-toggle {
+            display: flex;
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 4px;
+            border: 2px solid #e5e7eb;
+        }
+        .type-toggle input[type="radio"] { display: none; }
+        .toggle-btn {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #type-income:checked + .toggle-btn {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+        #type-expense:checked + .toggle-btn {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+        }
+
         .btn-add {
             width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.2s, background 0.3s; margin-top: 5px;
         }
@@ -133,16 +152,21 @@
             </div>
             <div class="input-group">
                 <label>Jumlah (Rp)</label>
-                <!-- PERUBAHAN DI SINI: type="text" dan inputmode="numeric" -->
                 <input type="text" id="amount" placeholder="0" inputmode="numeric">
             </div>
+            
+            <!-- DESAIN BARU: TOMBOL TOGGLE -->
             <div class="input-group">
-                <label>Tipe</label>
-                <select id="type">
-                    <option value="income">Pemasukan (+)</option>
-                    <option value="expense">Pengeluaran (-)</option>
-                </select>
+                <label>Tipe Transaksi</label>
+                <div class="type-toggle">
+                    <input type="radio" name="type" id="type-income" value="income" checked>
+                    <label for="type-income" class="toggle-btn">Pemasukan (+)</label>
+                    
+                    <input type="radio" name="type" id="type-expense" value="expense">
+                    <label for="type-expense" class="toggle-btn">Pengeluaran (-)</label>
+                </div>
             </div>
+
             <button class="btn-add" onclick="addTransaction()">Simpan Transaksi</button>
         </div>
 
@@ -163,18 +187,14 @@
 
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 
-        // Fungsi Format Rupiah (untuk tampilan saldo & list)
         function formatRupiah(angka) {
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0
             }).format(angka);
         }
 
-        // FUNGSI BARU: Otomatis kasih titik saat mengetik
         amountInput.addEventListener('input', function(e) {
-            // Hapus semua karakter kecuali angka
             let value = e.target.value.replace(/\D/g, '');
-            // Format dengan titik
             if (value !== '') {
                 value = new Intl.NumberFormat('id-ID').format(value);
             }
@@ -183,12 +203,11 @@
 
         function addTransaction() {
             const text = document.getElementById('text').value.trim();
-            
-            // Hapus titik dari input sebelum diubah jadi angka
             const rawAmount = amountInput.value.replace(/\./g, '');
             const amount = parseFloat(rawAmount);
             
-            const type = document.getElementById('type').value;
+            // Mengambil nilai dari tombol radio yang dipilih
+            const type = document.querySelector('input[name="type"]:checked').value;
 
             if (text === '' || isNaN(amount) || amount <= 0) {
                 alert('Mohon isi keterangan dan jumlah uang dengan benar!');
@@ -210,6 +229,7 @@
             // Reset form
             document.getElementById('text').value = '';
             amountInput.value = '';
+            document.getElementById('type-income').checked = true; // Reset ke Pemasukan
         }
 
         function removeTransaction(id) {
